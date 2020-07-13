@@ -1,0 +1,73 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:u="sap.ui.unified" xmlns:l="sap.ui.layout" xmlns:f="sap.ui.layout.form"
+	xmlns:core="sap.ui.core" xmlns:app="http://schemas.sap.com/sapui5/extension/sap.ui.core.CustomData/1">
+	<Dialog class="sapUiSizeCompact" title="{i18n>FilterDialog}" busy="{configurationModel>/busyIndicatorFlag}">
+		<content>
+			<f:Form maxContainerCols="2" editable="true">
+				<f:layout>
+					<f:ResponsiveGridLayout belSpanXL="5" labelSpanL="5" labelSpanM="5" labelSpanS="5" emptySpanXL="0" emptySpanL="0" emptySpanM="0"
+						emptySpanS="0" columnsXL="2" columnsL="2" columnsM="2"/>
+				</f:layout>
+				<f:formContainers>
+					<f:FormContainer>
+						<f:formElements>
+							<f:FormElement>
+								<f:label>
+									<Label text="{i18n>displayCompanyName}"/>
+								</f:label>
+								<f:fields>
+									<ComboBox id="companyComboBoxId" items="{filterModel>/AllCompany}" selectedKey="{filterModel>/SelectedCompany}">
+										<core:ListItem key="{filterModel>Company}" text="{filterModel>Company}"/>
+									</ComboBox>
+								</f:fields>
+							</f:FormElement>
+							<f:FormElement>
+								<f:label>
+									<Label text="{i18n>displayCreatdFrom}"/>
+								</f:label>
+								<f:fields>
+									<DatePicker id="createdFromPickeId" value="{filterModel>/CreatedFrom}" class="sapUiSmallMarginBottom"/>
+								</f:fields>
+							</f:FormElement>
+						</f:formElements>
+					</f:FormContainer>
+					<f:FormContainer>
+						<f:formElements>
+							<f:FormElement>
+								<f:label>
+									<Label text="{i18n>displayCreatedBy}"/>
+								</f:label>
+								<f:fields>
+									<Input id="createdByInputId" type="Text" value="{filterModel>/CreatedBy}"/>
+								</f:fields>
+							</f:FormElement>
+							<!--<f:FormElement>-->
+							<!--	<f:label>-->
+							<!--		<Label text="{i18n>displayStatus}"/>-->
+							<!--	</f:label>-->
+							<!--	<f:fields>-->
+							<!--		<ComboBox id="statusComboBoxId" items="{filterModel>/AllStatus}" selectedKey="{filterModel>/SelectedStatus}">-->
+							<!--			<core:ListItem key="{filterModel>Status}" text="{filterModel>Status}"/>-->
+							<!--		</ComboBox>-->
+							<!--	</f:fields>-->
+							<!--</f:FormElement>-->
+							<f:FormElement>
+								<f:label>
+									<Label text="{i18n>displayCreatedTo}"/>
+								</f:label>
+								<f:fields>
+									<!--<DateRangeSelection id="createdOnRangeId" displayFormat="MM/yyyy" change="onCreationDateChange"/>-->
+									<DatePicker id="createdToPickeId" value="{filterModel>/CreatedTo}" class="sapUiSmallMarginBottom"/>
+								</f:fields>
+							</f:FormElement>
+						</f:formElements>
+					</f:FormContainer>
+				</f:formContainers>
+			</f:Form>
+		</content>
+		<buttons>
+			<Button icon="sap-icon://decline" type="Reject" tooltip="{i18n>Cancel}" press="onCancelFilter"/>
+			<Button icon="sap-icon://clear-filter" tooltip="{i18n>ClearFilter}" press="onClearFilter"/>
+			<Button icon="sap-icon://filter" type="Emphasized" tooltip="{i18n>ApplyFilter}" press="onApplyFilter"/>
+		</buttons>
+	</Dialog>
+</core:FragmentDefinition>
