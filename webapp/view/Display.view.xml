@@ -1,0 +1,97 @@
+<mvc:View xmlns:html="http://www.w3.org/1999/xhtml" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m"
+	controllerName="BudgetAllocation.controller.Display" displayBlock="true">
+	<App>
+		<pages>
+			<Page busy="{configurationModel>/busyIndicatorFlag}">
+				<content>
+					<Table id="budgetTableId" visible="{= ${configurationModel>/role} !== 'NotAuthorized' }" noDataText="{i18n>noData}"
+						items="{budgetModel>/results}">
+						<columns>
+							<Column width="15%">
+								<Text text="{i18n>CompName}"/></Column>
+							<Column width="10%">
+								<Text text="{i18n>DNType}"/></Column>
+							<Column width="10%">
+								<Text text="{i18n>salesChannel}"/></Column>
+							<Column width="8%">
+								<Text text="{i18n>brand}"/></Column>
+							<Column width="5%">
+								<Text text="{i18n>month}"/></Column>
+							<Column width="5%">
+								<Text text="{i18n>year}"/></Column>
+							<Column width="10%">
+								<Text text="{i18n>origBdg}"/></Column>
+							<Column width="7%">
+								<Text text="{i18n>extBdg}"/></Column>
+							<Column width="12%">
+								<Text text="{i18n>remBdg}"/></Column>
+							<Column width="7%">
+								<Text text="{i18n>UID}"/></Column>
+							<Column width="10%">
+								<Text text="{i18n>dateBdg}"/></Column>
+							<Column width="7%">
+								<Text text="{i18n>timeBdg}"/>
+							</Column>
+							<Column width="8%">
+								<Text text="{i18n>histBdg}"/>
+							</Column>
+						</columns>
+						<items>
+							<ColumnListItem>
+								<Text id="compNameLabelId" text="{budgetModel>CompanyName}" textAlign="Center" class="sapUiSmallMarginTop"/>
+								<Text id="dnTypeLabelId" text="{ path: 'budgetModel>DnType', formatter: '.formatter.captalizeFirstChar' }" textAlign="Center"
+									class="sapUiSmallMarginTop"/>
+								<Text id="salesKeyLabelId" text="{ path: 'budgetModel>SalesDesc', formatter: '.formatter.captalizeFirstChar' }" textAlign="Center"
+									class="sapUiSmallMarginTop"/>
+								<Text id="brandLabelId" text="{ path: 'budgetModel>Brand', formatter: '.formatter.captalizeFirstChar' }" textAlign="Center"
+									class="sapUiSmallMarginTop"/>
+								<ObjectStatus id="monthLabelId" textAlign="Center" text="{ path: 'budgetModel>BdgMonth', formatter: '.formatter.leftShiftZeros'}"
+									state="{path: 'budgetModel>BdgMonth', formatter: '.formatter.monthState'}" class="sapUiSmallMarginTop"/>
+								<Text id="YearLabelId" text="{budgetModel>BdgYear}" textAlign="Center" class="sapUiSmallMarginTop"/>
+								<Input id="orignalBDGInputId" value="{budgetModel>OriginalBdg}" textAlign="Center"
+									editable="{= ${budgetModel>Changeable} === 'X' &amp;&amp; ${configurationModel>/mode} === 'Change'}"
+									enabled="{= ${budgetModel>Changeable} === 'X' &amp;&amp; ${configurationModel>/mode} === 'Change'}"/>
+								<Text id="extendedBDGLabelId"
+									text="{ parts: [ {path: 'budgetModel>ExtendedBdg'}, {path: 'budgetModel>Currency'} ], formatter: '.formatter.roundAmount' }"
+									textAlign="Center" class="sapUiSmallMarginTop"/>
+								<ObjectNumber class="sapUiSmallMarginTop"
+									number="{ parts: [ {path: 'budgetModel>RemaningBdg'}, {path: 'budgetModel>Currency'} ], formatter: '.formatter.roundAmount' }"
+									unit="{budgetModel>Currency}"
+									state="{ parts: [ {path: 'budgetModel>RemaningBdg'}, {path: 'budgetModel>OriginalBdg'} ], formatter: '.formatter.budgetState' }"/>
+								<Text id="userLabelId" text="{ parts: [ 'budgetModel>UserId', 'i18n&gt;oneWord' ], formatter: '.formatter.captalizeFirstChar' }"
+									textAlign="Center" class="sapUiSmallMarginTop"/>
+								<Text id="dateLabelId"
+									text="{ path: 'budgetModel>CreationDate', type: 'sap.ui.model.type.DateTime', formatOptions: { pattern: 'dd-MM-yyyy' } }" textAlign="Center"
+									class="sapUiSmallMarginTop"/>
+								<Text id="timeLabelId" text="{path: 'budgetModel>CreationTime', formatter: '.formatter.timeFormatter'}" textAlign="Center"
+									class="sapUiSmallMarginTop"/>
+								<Button id="historyButtonId" press="onHistoryPress" icon="sap-icon://history"/>
+							</ColumnListItem>
+						</items>
+						<headerToolbar visible="{= ${configurationModel>/role} !== 'NotAuthorized' }">
+							<Toolbar height="3rem">
+								<ToolbarSpacer/>
+								<Button icon="sap-icon://sort" press="onSortPress" />
+								<Button icon="sap-icon://filter" press="onFilterPress"/>
+							</Toolbar>
+						</headerToolbar>
+					</Table>
+					<FlexBox visible="{= ${configurationModel>/role} === 'NotAuthorized' }" alignItems="Center" height="100%" justifyContent="Center">
+						<Label id="notAuthLabelId" text="{i18n>notAuth}" visible="{= ${configurationModel>/role} === 'NotAuthorized' }"/>
+					</FlexBox>
+				</content>
+				<footer>
+					<OverflowToolbar visible="{= ${configurationModel>/role} === 'Change' }">
+						<ToolbarSpacer/>
+						<Button visible="{= ${configurationModel>/role} === 'Change' }" enabled="{= ${configurationModel>/mode} === 'Change' }" type="Accept"
+							press="onSavePress" icon="sap-icon://save"/>
+						<Button visible="{= ${configurationModel>/role} === 'Change' }" enabled="{= ${configurationModel>/mode} === 'View' }" type="Emphasized"
+							press="onChangePress" icon="sap-icon://edit"/>
+						<Button visible="{= ${configurationModel>/mode} === 'Change' &amp;&amp; ${configurationModel>/role} !== 'NotAuthorized'}" type="Reject"
+							press="onCancelPress" icon="sap-icon://sys-cancel"/>
+					</OverflowToolbar>
+				</footer>
+			</Page>
+		</pages>
+	</App>
+</mvc:View>

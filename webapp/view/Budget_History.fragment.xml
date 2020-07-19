@@ -1,0 +1,42 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+	<Dialog id="budgetHistoryDialogId" title="{i18n>histBdg}" contentHeight="50%" contentWidth="40%">
+		<Table busy="{configurationModel>/busyIndicatorFlag}" id="historyTableId" class="sapUiResponsiveMargin" noDataText="{i18n>noHistory}"
+			width="auto" items="{historyModel>/results}">
+			<columns>
+				<Column width="8%">
+					<Text text="{i18n>LineID}"/>
+				</Column>
+				<Column width="15%">
+					<Text text="{i18n>UID}"/>
+				</Column>
+				<Column width="20%">
+					<Text text="{i18n>prevBDG}"/>
+				</Column>
+				<Column width="20%">
+					<Text text="{i18n>currentBDG}"/>
+				</Column>
+				<Column width="20%">
+					<Text text="{i18n>dateBdg}"/>
+				</Column>
+				<Column width="15%">
+					<Text text="{i18n>timeBdg}"/>
+				</Column>
+			</columns>
+			<items>
+				<ColumnListItem>
+					<cells>
+						<Text text="{ path: 'historyModel>LineId', formatter: '.formatter.leftShiftZeros' }"/>
+						<Text text="{ parts: [ 'historyModel>UserId', 'i18n>oneWord' ], formatter: '.formatter.captalizeFirstChar' }"/>
+						<ObjectNumber number="{ parts: [ {path: 'historyModel>PreviousBdg'}, {path: 'historyModel>/Currency'} ], formatter: '.formatter.roundAmount' }" unit="{historyModel>/Currency}"/>
+						<ObjectNumber number="{ parts: [ {path: 'historyModel>CurrentBdg'}, {path: 'historyModel>/Currency'} ], formatter: '.formatter.roundAmount' }" unit="{historyModel>/Currency}" state="Success" />
+						<Text text="{ path: 'historyModel>CreationDate', type: 'sap.ui.model.type.DateTime', formatOptions: { pattern: 'dd-MM-yyyy' } }"/>
+						<Text text="{ path: 'historyModel>CreationTime', formatter: '.formatter.timeFormatter' }"/>
+					</cells>
+				</ColumnListItem>
+			</items>
+		</Table>
+		<beginButton>
+			<Button press="onCloseDialog" icon="sap-icon://decline"/>
+		</beginButton>
+	</Dialog>
+</core:FragmentDefinition>
