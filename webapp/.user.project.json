@@ -1,7 +1,7 @@
 {
   "run": [
     {
-      "filePath": "/index.html",
+      "filePath": "/Component.js",
       "previewMode": 1,
       "dataMode": 1,
       "workspace": "withoutWorkspace",
@@ -11,12 +11,11 @@
       "urlParameters": [],
       "hashParameter": "",
       "backendSystem": [],
-      "urlParametersNotNeeded": false,
       "_metadata": {
-        "runnerId": "webapprunner",
-        "id": 9056927,
-        "displayName": "Run index.html",
-        "lastRunTimeStamp": 1594596751209
+        "runnerId": "fiorirunner",
+        "id": 7109300,
+        "displayName": "Run Component.js",
+        "lastRunTimeStamp": 1597337879999
       }
     }
   ]

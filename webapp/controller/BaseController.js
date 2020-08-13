@@ -1,234 +1,142 @@
+/*global history */
 sap.ui.define([
 	"sap/ui/core/mvc/Controller",
 	"sap/ui/core/routing/History",
-	"sap/ui/core/UIComponent",
-	"BudgetAllocation/model/formatter"
-], function(Controller, History, UIComponent, formatter) {
+	"sap/m/MessageBox"
+], function(Controller, History, MessageBox) {
 	"use strict";
 
-	return Controller.extend("BudgetAllocation.controller.BaseController", {
-
-		formatter: formatter,
-		// handle back button
-		onNavBack: function() {
-			var oHistory, sPreviousHash;
-
-			oHistory = History.getInstance();
-			sPreviousHash = oHistory.getPreviousHash();
-
-			if (sPreviousHash !== undefined) {
-				window.history.go(-1);
-			} else {
-				this.getRouter().navTo("Route_Basic", {}, true /*no history*/ );
-			}
-		},
+	return Controller.extend("ExtensionApproval.ExtensionApproval.controller.BaseController", {
+		/**
+		 * Convenience method for accessing the router in every controller of the application.
+		 * @public
+		 * @returns {sap.ui.core.routing.Router} the router for this component
+		 */
 
 		getRouter: function() {
-			return UIComponent.getRouterFor(this);
+			return this.getOwnerComponent().getRouter();
 		},
 
-		// get json model from view
-		getModel: function(oName) {
-			return this.getView().getModel(oName);
+		/**
+		 * Convenience method for getting the view model by name in every controller of the application.
+		 * @public
+		 * @param {string} sName the model name
+		 * @returns {sap.ui.model.Model} the model instance
+		 */
+		getModel: function(sName) {
+			return this.getView().getModel(sName);
 		},
 
-		// bind json model to view
-		setModel: function(oModel, oName) {
-			return this.getView().setModel(oModel, oName);
+		/**
+		 * Convenience method for setting the view model in every controller of the application.
+		 * @public
+		 * @param {sap.ui.model.Model} oModel the model instance
+		 * @param {string} sName the model name
+		 * @returns {sap.ui.mvc.View} the view instance
+		 */
+		setModel: function(oModel, sName) {
+			return this.getView().setModel(oModel, sName);
 		},
 
-		// get text from i18n 
-		getTextFromResourceBundle: function(oName) {
-			return this.getResourceBundle().getText(oName);
-		},
-
-		// get access to translated text file (i18n)
+		/**
+		 * Convenience method for getting the resource bundle.
+		 * @public
+		 * @returns {sap.ui.model.resource.ResourceModel} the resourceModel of the component
+		 */
 		getResourceBundle: function() {
 			return this.getOwnerComponent().getModel("i18n").getResourceBundle();
 		},
 
-		// get number after second '/' letter from string 
-		getIndexOfIem: function(oValue) {
-			var index = oValue.split('/')[2];
-			return index;
+		getTextFromResourceBundle: function(oName, param) {
+			return this.getResourceBundle().getText(oName, param);
 		},
 
-		// validate array of controls like float, integer and string 
-		validator: function(oArray) {
+		/**
+		 * Event handler for navigating back.
+		 * It there is a history entry we go one step back in the browser history
+		 * If not, it will replace the current entry of the browser history with the master route.
+		 * @public
+		 */
+		onNavBack: function() {
+			var sPreviousHash = History.getInstance().getPreviousHash();
 
-			var oFlag = true,
-				letterFlag = true,
+			if (sPreviousHash !== undefined) {
+				history.go(-1);
+			} else {
+				this.getRouter().navTo("master", {}, true);
+			}
+		},
+
+		confirmMultiReq: function(workItems, decision, decisionCode) {
+
+			var oModel = this.getOwnerComponent().getModel(),
+				confirmPath = "/ApproveMultiReq",
 				that = this,
-				oValue = "";
+				statusFlag = false,
+				itemsLength = workItems.length;
 
-			oArray.forEach(function(x) {
-				switch (x.type) {
-					case "char":
-						oValue = x.id.getValue();
-						letterFlag = that.validateAlph(oValue);
-						break;
-					case "num":
-						oValue = x.id.getValue();
-						letterFlag = that.validateAllNumber(oValue);
-						break;
-					case "float":
-						oValue = x.id.getValue();
-						letterFlag = that.validateFloat(oValue);
-						break;
-					default:
-						letterFlag = true;
+			that.getView().setBusy(true);
+
+			// 			var promise = new Promise(function(resolved, rejected) {
+
+			oModel.callFunction(confirmPath, {
+				method: "POST",
+				async: false,
+				urlParameters: {
+					RequestIDs: workItems,
+					Decision: decisionCode
+				},
+				success: function(data) {
+					// 		resolved(true);
+					statusFlag = true;
+					that.getView().setBusy(false);
+					if (itemsLength > 1) {
+						MessageBox.success(that.getTextFromResourceBundle("allActionSucc", decision));
+
+					} else {
+						MessageBox.success(that.getTextFromResourceBundle("actionSucc", decision));
+					}
+
+				},
+				error: function(error) {
+					// 		rejected(false);
+					that.getView().setBusy(false);
+					if (itemsLength > 1) {
+						MessageBox.error(that.getTextFromResourceBundle("allActionFail", decision));
+					} else {
+						MessageBox.error(that.getTextFromResourceBundle("decisionFail", decision));
+					}
+
 				}
+			});
 
-				if (x.id.getValue().length === 0 || x.id.getValue().length > x.max || letterFlag === false) {
-					x.id.setValueState(sap.ui.core.ValueState.Error);
-					oFlag = false;
-					letterFlag = true;
+		},
+
+		validteDatePicker: function(dayFrom, monthFrom, yearFrom, dayTo, monthTo, yearTo) {
+
+			if (yearFrom >= yearTo) {
+				if (yearFrom === yearTo) {
+					if (monthFrom >= monthTo) {
+						if (monthFrom === monthTo) {
+							if (dayFrom > dayTo) {
+								return false;
+							} else {
+								return true;
+							}
+						} else {
+							return false;
+						}
+					} else {
+						return true;
+					}
 				} else {
-					x.id.setValueState(sap.ui.core.ValueState.None);
-				}
-			});
-			return oFlag;
-		},
-
-		// clear error state from inputs
-		clearStateOfAllInputs: function(oArray) {
-
-			oArray.forEach(function(x) {
-
-				x.mAggregations.cells[6].setValueState(sap.ui.core.ValueState.None);
-
-			});
-		},
-
-		// check if string is only have letters like welcome not like welcome21
-		validateAlph: function(oValue) {
-
-			var letters = /^[A-Za-z]+$/;
-			if (oValue.match(letters)) {
-				return true;
-			} else {
-				return false;
-			}
-		},
-
-		// check if string has only have numbers
-		validateAllNumber: function(oValue) {
-			var numbers = /^[0-9]+$/;
-			if (oValue.match(numbers)) {
-				return true;
-			} else {
-				return false;
-			}
-		},
-
-		// check if string has integer or float numbers
-		validateFloat: function(oValue) {
-			var numbers = /^(\d{1,16})+(\.\d+)?$/;
-			if (oValue.match(numbers)) {
-				return true;
-			} else {
-				return false;
-			}
-		},
-
-		validteDatePicker: function(monthFrom, YearFrom, monthTo, YearTo) {
-
-			if (YearFrom > YearTo) {
-				return false;
-			}
-
-			if (YearFrom === YearTo) {
-
-				if (monthFrom > monthTo) {
 					return false;
 				}
+			} else {
 
+				return true;
 			}
 
-			return true;
-
-		},
-
-		addLeftZero: function(num, size) {
-
-			var convertdNum = num + "";
-			while (convertdNum.length < size) {
-				convertdNum = "0" + convertdNum;
-			}
-			return convertdNum;
-
-		},
-
-		retriveDefaultConfSetting: function() {
-			return {
-				"busyIndicatorFlag": false,
-				"mode": "View",
-				"role": "View"
-			};
-		},
-
-		retriveDefaultFilters: function() {
-			return {
-				"DNTypes": [],
-				"Brands": [],
-				"CreatedFrom": "",
-				"SalesChannels": [],
-				"UserId": "",
-				"CreatedTo": "",
-				"SelectedDnType": "",
-				"SelectedSalesChannel": "",
-				"SelectedBrand": ""
-			};
-		},
-		
-		handleAddingFilters: function() {
-
-			var dnTypeComboBox = this.getView().byId("DNTypeComboBoxId"),
-				channelComboBox = this.getView().byId("salesChannelComboBoxId"),
-				brandComboBox = this.getView().byId("brandComboBoxId"),
-				oDnTypeItem = dnTypeComboBox.getSelectedItem(),
-				oChannelItem = channelComboBox.getSelectedItem(),
-				oBrandItem = brandComboBox.getSelectedItem(),
-				lastDnTypeValue = dnTypeComboBox._lastValue,
-				lastChannelValue = channelComboBox._lastValue,
-				lastBrandValue = brandComboBox._lastValue,
-				dnTypeArr = this.filterModel.getProperty("/DNTypes"),
-				channelArr = this.filterModel.getProperty("/SalesChannels"),
-				brandArr = this.filterModel.getProperty("/Brands"),
-				newDnTypeFilter = {},
-				newChannelFilter = {},
-				newBrandFilter = {};
-
-			if (!oDnTypeItem && lastDnTypeValue !== "") {
-				dnTypeComboBox.setSelectedKey(lastDnTypeValue);
-				newDnTypeFilter.DnType = lastDnTypeValue;
-				dnTypeArr.push(newDnTypeFilter);
-				this.filterModel.setProperty("/DNTypes", dnTypeArr);
-			}
-
-			if (!oChannelItem && lastChannelValue !== "") {
-				channelComboBox.setSelectedKey(lastChannelValue);
-				newChannelFilter.SalesDesc = lastChannelValue;
-				channelArr.push(newChannelFilter);
-				this.filterModel.setProperty("/SalesChannels", channelArr);
-			}
-
-			if (!oBrandItem && lastBrandValue !== "") {
-				brandComboBox.setSelectedKey(lastBrandValue);
-				newBrandFilter.Brand = lastBrandValue;
-				brandArr.push(newBrandFilter);
-				this.filterModel.setProperty("/Brands", brandArr);
-			}
-
-		},
-
-		clearAllAppliedFilters: function() {
-			this.filterModel.setProperty("/SelectedDnType", "");
-			this.filterModel.setProperty("/SelectedBrand", "");
-			this.filterModel.setProperty("/CreatedFrom", "");
-			this.filterModel.setProperty("/SelectedSalesChannel", "");
-			this.filterModel.setProperty("/UserId", "");
-			this.filterModel.setProperty("/CreatedTo", "");
 		}
 
 	});

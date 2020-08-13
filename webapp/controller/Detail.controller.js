@@ -121,6 +121,7 @@ sap.ui.define([
 				success: function(data) {
 					that.workItemModel.setData(data);
 					that.setConfigOfLaneAndNode();
+					that.retriveExtAttachment();
 					that._onBindingChange();
 				},
 				error: function(error) {
@@ -242,9 +243,11 @@ sap.ui.define([
 						});
 
 					});
+					
 					that.workItemModel.setProperty("/flowSummary", flowSummaryArr);
 					that.workItemModel.setProperty("/lanes", lanes);
 					that.workItemModel.setProperty("/nodes", nodes);
+					that.getView().byId("processFlow").updateModel();
 				},
 				error: function(error) {
 					MessageToast.show(that.getTextFromResourceBundle("failureGetInbox"));
@@ -277,6 +280,39 @@ sap.ui.define([
 
 		onCloseProcessFlow: function(oEvent) {
 			this._nodeDialog.destroy();
+		},
+
+		retriveExtAttachment: function() {
+
+			var budgetId = this.workItemModel.getProperty("/RequestId"),
+				lineId = this.workItemModel.getProperty("/LineId"),
+				extAttachPath = "/BdgExtensionSet(LineId='" + lineId + "',BdgId='" + budgetId + "')/DNoteAttachmentSet",
+				oModel = this.getOwnerComponent().getModel(),
+				that = this;
+
+			this.getModel("detailView").setProperty("/busy", true);
+
+			oModel.read(extAttachPath, {
+				method: "GET",
+				success: function(extAttach) {
+					that.getModel("detailView").setProperty("/busy", false);
+					that.workItemModel.setProperty("/extAttachments", extAttach.results);
+				},
+				error: function(error) {
+					that.getModel("detailView").setProperty("/busy", false);
+					MessageToast.show(that.getTextFromResourceBundle("failDisplayExtAttach"));
+				}
+
+			});
+
+		},
+
+		onAttachmentItemPress: function(oEvent) {
+			var attchPhysicalId = oEvent.getSource().getBindingContext("workItemModel").getObject().PhysicalId;
+			if (attchPhysicalId) {
+				var url = this.getOwnerComponent().getModel().sServiceUrl + "/DNoteOriginalSet('" + attchPhysicalId + "')/$value";
+				window.open(url, '_blank');
+			}
 		},
 
 		/**
@@ -454,6 +490,7 @@ sap.ui.define([
 
 			var _oComponent = this.getOwnerComponent(),
 				oList = _oComponent.oListSelector._oList,
+				// oRouter = this.getRouter(),
 				inboxModel = oList.getModel("inboxModel"),
 				items = inboxModel.getProperty("/results"),
 				workItem = this.sWorkItem,
@@ -464,24 +501,18 @@ sap.ui.define([
 				decisionCode = confirmationModel.getProperty("/decisionCode"),
 				comment = confirmationModel.getProperty("/comment"),
 				that = this,
-				 createObj = {
-                  WorkItem:workItem,
-                  Comments:comment,
-                  Decision: decisionCode,
-                  Kfh: "",
-                  InboxToAttachmentNav: []
-                };
+				createObj = {
+					WorkItem: workItem,
+					Comments: comment,
+					Decision: decisionCode,
+					Kfh: "",
+					InboxToAttachmentNav: []
+				};
 
 			that.getView().setBusy(true);
-// 			oModel.callFunction(confirmPath, {
-// 				method: "POST",
-// 				async: false,
-// 				urlParameters: {
-// 					RequestIDs: [workItem],
-// 					Decision: decisionCode
-// 				},
-            oModel.create(confirmPath, createObj, {
-                
+		
+			oModel.create(confirmPath, createObj, {
+
 				success: function(data) {
 					// 		resolved(true);
 					that.getView().setBusy(false);
@@ -494,6 +525,13 @@ sap.ui.define([
 					that.getOwnerComponent().oListSelector._oList.setModel(inboxModel, "inboxModel");
 					that.getRouter().getRoute("object").attachPatternMatched(that._onObjectMatched, that);
 					that.retiveWorkItem();
+				
+			    	// oRouter.navTo("object", {
+			    	//     workItem: that.sWorkItem, 
+			    	//     username: that.sUserName,
+			    	//     index: that.slectedIndex
+			    	// });
+				
 					MessageBox.success(that.getTextFromResourceBundle("actionSucc", decision));
 					that._commentFragment.destroy();
 				},

@@ -25,8 +25,8 @@
 				</infoToolbar>
 				<items>
 				     <!--press="onSelectionChange"-->
-					<ObjectListItem type="Active" title="{inboxModel>RequestId}"
-						number="{ path: 'inboxModel>Amount', formatter: '.formatter.currencyValue' }" numberUnit="{inboxModel>Curr}">
+					<ObjectListItem type="Active" title="[{inboxModel>RequestId}, {inboxModel>LineId}]"
+						number="{inboxModel>Amount}" numberUnit="{inboxModel>Curr}">
 						<firstStatus>
 							<ObjectStatus text="{inboxModel>Status}" state="{path: 'inboxModel>Status', formatter: '.formatter.status'}"/>
 						</firstStatus>

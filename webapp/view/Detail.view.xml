@@ -7,13 +7,13 @@
 			<ux:ObjectPageLayout xmlns:layout="sap.ui.layout" xmlns:blockcolor="sap.uxap.sample.SharedBlocks" id="ObjectPageLayout"
 				enableLazyLoading="false" showAnchorBarPopover="false" height="100%" alwaysShowContentHeader="true">
 				<ux:headerContent>
-					<ObjectHeader title="{i18n>displayExtRequest} {workItemModel>/RequestId}"
+					<ObjectHeader title="{i18n>displayReqNo} {workItemModel>/RequestId}, {i18n>displayExtNo} {workItemModel>/LineId}"
 						number="{ parts: [ {path: 'Amount'}, {path: 'Curr'} ], formatter: '.formatter.roundAmount2' }" numberUnit="{Curr}" condensed="true"
 						responsive="true">
 						<attributes>
 							<ObjectAttribute title="{i18n>displayCreatedBy}" text="{workItemModel>/CreatedBy}"/>
 							<ObjectAttribute title="{i18n>displayCompanyName}" text="{workItemModel>/CompanyText}"/>
-							<ObjectAttribute title="{i18n>displayCreationDate}" text="{path: 'workItemModel>/CreationDate', formatter: '.formatter.formatDate'}"/>
+							<ObjectAttribute title="{i18n>displayCreationDate}" text="{path: 'workItemModel>/CreationDate', formatter: '.formatter.formatDate2'}"/>
 						</attributes>
 						<statuses>
 							<ObjectStatus id="objectStatusId" title="{i18n>displayStatus}"
@@ -56,7 +56,7 @@
 											<Input id="dnTypeLabelId" value="{ path: 'overviewModel>/allocationDetails/DnType', formatter: '.formatter.captalizeFirstChar' }"
 												textAlign="Center" editable="false"/>
 											<Label text="{i18n>displayBrand}" class="sapUiTinyMarginTop"/>
-											<Input id="brandLabelId" value="{ path: 'overviewModel>/allocationDetails/Brand', formatter: '.formatter.captalizeFirstChar' }"
+											<Input id="brandLabelId" value="{overviewModel>/allocationDetails/Brand}"
 												textAlign="Center" editable="false"/>
 											<Label text="{i18n>displaySalesChannel}" class="sapUiTinyMarginTop"/>
 											<Input id="salesKeyLabelId" value="{ path: 'overviewModel>/allocationDetails/SalesDesc', formatter: '.formatter.captalizeFirstChar' }"
@@ -101,8 +101,8 @@
 							<ux:ObjectPageSubSection id="processFlowId">
 								<Panel>
 									<HBox renderType="Bare">
-										<Button text="{i18n>displayZoomIn}" press="onZoomInPress" visible="{= ${workItemModel>/nodes} !== undefined }" />
-										<Button text="{i18n>displatZoomOut}" press="onZoomOutPress" visible="{= ${workItemModel>/nodes} !== undefined }" />
+										<Button text="{i18n>displayZoomIn}" press="onZoomInPress" visible="{= ${workItemModel>/nodes} !== undefined }"/>
+										<Button text="{i18n>displatZoomOut}" press="onZoomOutPress" visible="{= ${workItemModel>/nodes} !== undefined }"/>
 									</HBox>
 									<commons:ProcessFlow id="processFlow" scrollable="false" foldedCorners="true" nodePress="onNodePress" nodes="{workItemModel>/nodes}"
 										lanes="{workItemModel>/lanes}">
@@ -126,15 +126,39 @@
 							<ux:ObjectPageSubSection id="flowSummaryId">
 								<l:VerticalLayout class="sapUiContentPadding" width="100%">
 									<l:content>
-									    <!--info="{path:'workItemModel>StepNo',formatter:'.formatter.getProcessFlowIntro'} - {workItemModel>Status}"-->
+										<!--info="{path:'workItemModel>StepNo',formatter:'.formatter.getProcessFlowIntro'} - {workItemModel>Status}"-->
 										<List items="{workItemModel>/flowSummary}">
 											<FeedListItem sender="{workItemModel>DecisionBy}" icon="sap-icon://person-placeholder" iconDensityAware="false"
-		                                        info="{workItemModel>StepPosition}"										
+												info="{workItemModel>StepPosition}"
 												timestamp="{parts:['workItemModel>DecisionDate','workItemModel>DecisionTime'],formatter:'.formatter.formatDateTime'}"
 												text="{workItemModel>Comments}" noData="{i18n>noSummary}"/>
 										</List>
 									</l:content>
 								</l:VerticalLayout>
+							</ux:ObjectPageSubSection>
+						</ux:subSections>
+					</ux:ObjectPageSection>
+					<ux:ObjectPageSection title="{i18n>Attach}">
+						<ux:subSections>
+							<ux:ObjectPageSubSection>
+								<VBox class="sapUiSmallMargin" visible="{= ${workItemModel>/extAttachments} !== undefined }">
+									<f:SimpleForm editable="false" layout="ResponsiveGridLayout" title="{i18n>docInfo}" labelSpanXL="3" labelSpanL="3" labelSpanM="3"
+										labelSpanS="12" adjustLabelSpan="false" emptySpanXL="4" emptySpanL="4" emptySpanM="4" emptySpanS="0" columnsXL="1" columnsL="1" columnsM="1"
+										singleContainerFullSize="false" class="sapUiSmallMarginTop">
+										<f:content>
+											<Label text="{i18n>requestNum}" class="sapUiMediumMarginTop"/>
+											<Text text="{workItemModel>/LineId}" class="sapUiMediumMarginTop"/>
+											<Label text="{i18n>docType}" class="sapUiSmallMarginTop"/>
+											<Text text="ZDN" class="sapUiSmallMarginTop"/>
+										</f:content>
+									</f:SimpleForm>
+									<List items="{workItemModel>/extAttachments}" class="sapUiLargeMarginTop">
+										<items>
+											<StandardListItem icon="sap-icon://document" title="{workItemModel>Filename}.{workItemModel>Extension}" type="Active"
+												press="onAttachmentItemPress"/>
+										</items>
+									</List>
+								</VBox>
 							</ux:ObjectPageSubSection>
 						</ux:subSections>
 					</ux:ObjectPageSection>

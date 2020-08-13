@@ -103,6 +103,7 @@ sap.ui.define([
 
 					inboxData.results.forEach(function(item) {
 						item.CreationDate = new Date(formatter.formatDate(item.CreationDate));
+						item.Amount = formatter.currencyValue(item.Amount);
 					});
 					that.getView().setBusy(false);
 					that.inboxModel.setData(inboxData);
@@ -232,14 +233,16 @@ sap.ui.define([
 			var companyFilter = this.filterModel.getProperty("/SelectedCompany"),
 				statusFilter = this.filterModel.getProperty("/SelectedStatus"),
 				createdByFilter = this.filterModel.getProperty("/CreatedBy"),
+				reqIdFilter = this.filterModel.getProperty("/ReqId"),
+				extNo = this.filterModel.getProperty("/ExtNo"),
 				createdFromFilter = this.filterModel.getProperty("/CreatedFrom"),
 				createdToFilter = this.filterModel.getProperty("/CreatedTo"),
-				createdFromDayFilter = createdFromFilter ? createdFromFilter.split('.')[0] : "undefined",
-				createdToDayFilter = createdToFilter ? createdToFilter.split('.')[0] : "undefined",
-				createdFromMonthFilter = createdFromFilter ? createdFromFilter.split('.')[1] : "undefined",
-				createdToMonthFilter = createdToFilter ? createdToFilter.split('.')[1] : "undefined",
-				createdFromYearFilter = createdFromFilter ? createdFromFilter.split('.')[2] : "undefined",
-				createdToYearFilter = createdToFilter ? createdToFilter.split('.')[2] : "undefined",
+				createdFromDayFilter = createdFromFilter ? createdFromFilter.split(".")[0] : "undefined",
+				createdToDayFilter = createdToFilter ? createdToFilter.split(".")[0] : "undefined",
+				createdFromMonthFilter = createdFromFilter ? createdFromFilter.split(".")[1] : "undefined",
+				createdToMonthFilter = createdToFilter ? createdToFilter.split(".")[1] : "undefined",
+				createdFromYearFilter = createdFromFilter ? createdFromFilter.split(".")[2] : "undefined",
+				createdToYearFilter = createdToFilter ? createdToFilter.split(".")[2] : "undefined",
 				createdFromDate = new Date(formatter.filterFormatDate(createdFromFilter)),
 				createdToDate = new Date(formatter.filterFormatDate(createdToFilter)),
 				oFilters = [],
@@ -258,13 +261,23 @@ sap.ui.define([
 			if (companyFilter) {
 				oFilters.push(new Filter("CompanyText", FilterOperator.Contains, companyFilter));
 			}
+			
 			if (statusFilter) {
 				oFilters.push(new Filter("Status", FilterOperator.Contains, statusFilter));
 			}
+			
 			if (createdByFilter) {
 				oFilters.push(new Filter("CreatedBy", FilterOperator.Contains, createdByFilter));
 			}
-
+            
+            if (reqIdFilter) {
+                oFilters.push(new Filter("RequestId", FilterOperator.Contains, reqIdFilter));
+            } 
+            
+            if (extNo) {
+                oFilters.push(new Filter("LineId", FilterOperator.Contains, extNo));
+            }
+            
 			if (createdFromDayFilter !== "undefined" || createdToDayFilter !== "undefined") {
 				if (createdFromDayFilter !== "undefined" && createdToDayFilter !== "undefined") {
 
@@ -371,17 +384,17 @@ sap.ui.define([
 		handleAddingFilters: function() {
 
 			var companyComboBox = this.getView().byId("companyComboBoxId"),
-				statusComboBox = this.getView().byId("statusComboBoxId"),
+				// statusComboBox = this.getView().byId("statusComboBoxId"),
 				companyItem = companyComboBox.getSelectedItem(),
-				statuslItem = statusComboBox.getSelectedItem(),
+				// statuslItem = statusComboBox.getSelectedItem(),
 				lastCompanyValue = companyComboBox._lastValue,
-				lastStatusValue = statusComboBox._lastValue,
+				// lastStatusValue = statusComboBox._lastValue,
 				allCompanyArr = this.filterModel.getProperty("/AllCompany"),
-				allStatusArr = this.filterModel.getProperty("/AllStatus"),
+				// allStatusArr = this.filterModel.getProperty("/AllStatus"),
 				companyArr = allCompanyArr ? allCompanyArr : [],
-				statusArr = allStatusArr ? allStatusArr : [],
-				newCompanyFilter = {},
-				newStatusFilter = {};
+				// statusArr = allStatusArr ? allStatusArr : [],
+				newCompanyFilter = {};
+				// newStatusFilter = {};
 
 			if (!companyItem && lastCompanyValue !== "") {
 				companyComboBox.setSelectedKey(lastCompanyValue);
@@ -390,12 +403,12 @@ sap.ui.define([
 				this.filterModel.setProperty("/AllCompany", companyArr);
 			}
 
-			if (!statuslItem && lastStatusValue !== "") {
-				statusComboBox.setSelectedKey(lastStatusValue);
-				newStatusFilter.SalesDesc = lastStatusValue;
-				statusArr.push(newStatusFilter);
-				this.filterModel.setProperty("/AllStatus", statusArr);
-			}
+// 			if (!statuslItem && lastStatusValue !== "") {
+// 				statusComboBox.setSelectedKey(lastStatusValue);
+// 				newStatusFilter.SalesDesc = lastStatusValue;
+// 				statusArr.push(newStatusFilter);
+// 				this.filterModel.setProperty("/AllStatus", statusArr);
+// 			}
 
 		},
 
@@ -405,6 +418,8 @@ sap.ui.define([
 			this.filterModel.setProperty("/CreatedFrom", "");
 			this.filterModel.setProperty("/CreatedBy", "");
 			this.filterModel.setProperty("/CreatedTo", "");
+			this.filterModel.setProperty("/ReqId","");
+			this.filterModel.setProperty("/ExtNo","");
 		},
 
 		/**

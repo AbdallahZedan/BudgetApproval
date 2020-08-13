@@ -1,38 +1,128 @@
-sap.ui.define(function() {
-	"use-strict";
+sap.ui.define([], function() {
+	"use strict";
 
 	return {
-		//define color of amount dependent on original amount
-		budgetState: function(amount, orgAmount) {
-			amount = parseInt(amount);
-			orgAmount = parseInt(orgAmount);
-			if (amount === 0) {
-				return "Error";
-			} else if (amount === orgAmount) {
-				return "Success";
+		/**
+		 * Rounds the currency value to 2 digits
+		 *
+		 * @public
+		 * @param {string} sValue value to be formatted
+		 * @returns {string} formatted currency value with 2 digits
+		 */
+		currencyValue: function(sValue, currency) {
+			
+			if (!sValue) {
+				return "";
+			}
+            
+			switch (currency) {
+				case "SAR":
+				case "USD":
+				case "GBP":
+				case "EUR":
+					sValue =parseFloat(parseFloat(sValue).toFixed(2));
+					break;
+				default:
+					sValue = parseFloat(parseFloat(sValue).toFixed(3));
+			}
+
+			return sValue;
+		},
+
+		formatDate: function(oDate) {
+
+			if (oDate !== null && oDate !== undefined) {
+				return oDate.substr(4, 2) + "-" + oDate.substr(6, 2) + "-" + oDate.substr(0, 4);
 			} else {
-				return "Warning";
+				return "";
 			}
 		},
 
-		// define month color dependent on current month
-		monthState: function(month) {
-
-			var currentMonth = new Date().getMonth();
-			month = parseInt(month);
-			currentMonth = parseInt(currentMonth);
-			if (month === currentMonth) {
-				return "Warning";
-			} else if (month < currentMonth) {
-				return "Error";
+		formatDate2: function(oDate) {
+			if (oDate !== null && oDate !== undefined) {
+				return oDate.substr(6, 2) + "-" + oDate.substr(4, 2) + "-" + oDate.substr(0, 4);
 			} else {
-				return "Success";
+				return "";
 			}
+		},
+
+		filterFormatDate: function(oDate) {
+
+			if (oDate !== null && oDate !== undefined) {
+				// oDate = oDate.replace(/\./g, "");
+				return oDate.substr(3, 3) + oDate.substr(0, 3) + oDate.substr(6, 4);
+			} else {
+				return "";
+			}
+
+		},
+
+		formatDateTime: function(sDate, sTime) {
+			return sTime.substring(0, 2) + ":" + sTime.substring(2, 4) + ":" + sTime.substring(4, 6) + ", " + sDate.substr(6, 2) + "/" + sDate.substr(
+				4, 2) + "/" + sDate.substr(0, 4);
+		},
+
+		setStateText: function(oStateText) {
+			var state = "Success";
+			switch (oStateText) {
+				case this.getTextFromResourceBundle("Pending"):
+					state = "Warning";
+					break;
+				case this.getTextFromResourceBundle("Reject"):
+					state = "Error";
+					break;
+				default:
+					break;
+			}
+			return state;
+		},
+
+		status: function(sValue) {
+
+			if (sValue === "APPROVED") {
+
+				return "Success";
+
+			} else if (sValue === "RELEASED" || sValue === "ACTIVATED" || sValue === "STARTED") {
+
+				return "Warning";
+
+			} else if (sValue === "DELETED" || sValue === "REJECTED") {
+
+				return "Error";
+
+			} else {
+				return "Error";
+
+			}
+
 		},
 
 		// round number dependant on currecy 
 		roundAmount: function(amount, currency) {
 
+			if (amount === undefined) {
+				return "";
+			}
+			switch (currency) {
+				case "SAR":
+				case "USD":
+				case "GBP":
+				case "EUR":
+					amount = parseFloat(amount).toFixed(2).toString().concat("\t" + currency);
+					break;
+				default:
+					amount = parseFloat(amount).toFixed(3).toString().concat("\t" + currency);
+			}
+
+			return amount;
+		},
+
+		roundAmount2: function(amount, currency) {
+
+			if (amount === null) {
+				return "";
+			}
 			switch (currency) {
 				case "SAR":
 				case "USD":
@@ -46,9 +136,12 @@ sap.ui.define(function() {
 
 			return amount;
 		},
-
 		// capital first letter of words
 		captalizeFirstChar: function(str, type) {
+
+			if (str === undefined) {
+				return "";
+			}
 
 			var lower = String(str).toLowerCase();
 			if (type === "oneWord") {
@@ -63,24 +156,50 @@ sap.ui.define(function() {
 			}
 		},
 
-		// convert milliseconds (ms) to hours, minutes seconds and milliseconds like to 360000 to 01:01 
-		timeFormatter: function(duration) {
-			var ms = duration.ms,
-				milliseconds = parseInt((ms % 1000) / 100),
-				seconds = Math.floor((ms / 1000) % 60),
-				minutes = Math.floor((ms / (1000 * 60)) % 60),
-				hours = Math.floor((ms / (1000 * 60 * 60)) % 24);
+		// add month to year 
+		concatMonthYear: function(sMonth, sYear) {
+			var date;
+			if (sMonth === undefined || sYear === undefined) {
+				date = "";
+			} else {
+				date = sMonth + "-" + sYear;
+			}
 
-			hours = (hours < 10) ? "0" + hours : hours;
-			minutes = (minutes < 10) ? "0" + minutes : minutes;
-			seconds = (seconds < 10) ? "0" + seconds : seconds;
+			return date;
 
-			return hours + ":" + minutes;
 		},
 
-		// remove left zeros from string
-		leftShiftZeros: function(number) {
-			return parseInt(number);
+		actionVisibility: function(oValue) {
+
+			if (oValue === "STARTED") {
+				return true;
+			} else {
+				return false;
+			}
+
+		},
+
+		getProcessFlowIntro: function(oValue) {
+
+			if (parseInt(oValue) === 1) {
+				return this.getTextFromResourceBundle("Reviewer");
+			} else if (parseInt(oValue) === 2) {
+				return this.getTextFromResourceBundle("Approval_1");
+			} else if (parseInt(oValue) === 3) {
+				return this.getTextFromResourceBundle("Approval_2");
+			} else if (parseInt(oValue) === 4) {
+				return this.getTextFromResourceBundle("Approval_3");
+			} else if (parseInt(oValue) === 5) {
+				return this.getTextFromResourceBundle("CFO");
+			} else if (parseInt(oValue) === 6) {
+				return this.getTextFromResourceBundle("CEO");
+			}
+			// if (parseInt(oValue) < 6) {
+			// return "Approver " + (parseInt(oValue));
+			// }
+			// return "Reviewer " + (parseInt(oValue) - 5);
 		}
+
 	};
+
 });
