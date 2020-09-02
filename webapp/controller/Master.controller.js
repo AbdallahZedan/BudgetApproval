@@ -261,23 +261,23 @@ sap.ui.define([
 			if (companyFilter) {
 				oFilters.push(new Filter("CompanyText", FilterOperator.Contains, companyFilter));
 			}
-			
+
 			if (statusFilter) {
 				oFilters.push(new Filter("Status", FilterOperator.Contains, statusFilter));
 			}
-			
+
 			if (createdByFilter) {
 				oFilters.push(new Filter("CreatedBy", FilterOperator.Contains, createdByFilter));
 			}
-            
-            if (reqIdFilter) {
-                oFilters.push(new Filter("RequestId", FilterOperator.Contains, reqIdFilter));
-            } 
-            
-            if (extNo) {
-                oFilters.push(new Filter("LineId", FilterOperator.Contains, extNo));
-            }
-            
+
+			if (reqIdFilter) {
+				oFilters.push(new Filter("RequestId", FilterOperator.Contains, reqIdFilter));
+			}
+
+			if (extNo) {
+				oFilters.push(new Filter("LineId", FilterOperator.Contains, extNo));
+			}
+
 			if (createdFromDayFilter !== "undefined" || createdToDayFilter !== "undefined") {
 				if (createdFromDayFilter !== "undefined" && createdToDayFilter !== "undefined") {
 
@@ -394,7 +394,7 @@ sap.ui.define([
 				companyArr = allCompanyArr ? allCompanyArr : [],
 				// statusArr = allStatusArr ? allStatusArr : [],
 				newCompanyFilter = {};
-				// newStatusFilter = {};
+			// newStatusFilter = {};
 
 			if (!companyItem && lastCompanyValue !== "") {
 				companyComboBox.setSelectedKey(lastCompanyValue);
@@ -403,12 +403,12 @@ sap.ui.define([
 				this.filterModel.setProperty("/AllCompany", companyArr);
 			}
 
-// 			if (!statuslItem && lastStatusValue !== "") {
-// 				statusComboBox.setSelectedKey(lastStatusValue);
-// 				newStatusFilter.SalesDesc = lastStatusValue;
-// 				statusArr.push(newStatusFilter);
-// 				this.filterModel.setProperty("/AllStatus", statusArr);
-// 			}
+			// 			if (!statuslItem && lastStatusValue !== "") {
+			// 				statusComboBox.setSelectedKey(lastStatusValue);
+			// 				newStatusFilter.SalesDesc = lastStatusValue;
+			// 				statusArr.push(newStatusFilter);
+			// 				this.filterModel.setProperty("/AllStatus", statusArr);
+			// 			}
 
 		},
 
@@ -418,8 +418,8 @@ sap.ui.define([
 			this.filterModel.setProperty("/CreatedFrom", "");
 			this.filterModel.setProperty("/CreatedBy", "");
 			this.filterModel.setProperty("/CreatedTo", "");
-			this.filterModel.setProperty("/ReqId","");
-			this.filterModel.setProperty("/ExtNo","");
+			this.filterModel.setProperty("/ReqId", "");
+			this.filterModel.setProperty("/ExtNo", "");
 		},
 
 		/**
@@ -530,8 +530,10 @@ sap.ui.define([
 						MessageBox.error(this.getTextFromResourceBundle("selectRejectedItem"));
 						return;
 					default:
-						this.getRouter().getTargets().display("detailWelcomeMessage");
-						break;
+						if (!Device.system.phone) {
+							this.getRouter().getTargets().display("detailWelcomeMessage");
+							break;
+						}
 				}
 				// if (status === && status === this.getResourceBundle("RejectedStatus")) {
 				// 	this._oList.setSelectedItem(oItem, false);
