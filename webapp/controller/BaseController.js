@@ -13,6 +13,23 @@ sap.ui.define([
 		 * @returns {sap.ui.core.routing.Router} the router for this component
 		 */
 
+		getNavigationUrl: function(ReqId) {
+
+			// get a handle on the global XAppNav service
+			var oCrossAppNavigator = sap.ushell.Container.getService("CrossApplicationNavigation"),
+				// generate the Hash to display report for request
+				hash = (oCrossAppNavigator && oCrossAppNavigator.hrefForExternal({
+					target: {
+						semanticObject: "DNOTE_REP_SEM",
+						action: "lookup"
+					}
+				})) || "";
+			//Generate a  URL for the second application
+			return window.location.href.split("#")[0] + hash + "&/Detail/" + ReqId;
+			// var reportUrl = window.location.href.split("#")[0] + hash + "&/Detail/" + ReqId;
+			// this.extDetailsModel.setProperty("/reportUrl", reportUrl);          
+		},
+
 		getRouter: function() {
 			return this.getOwnerComponent().getRouter();
 		},

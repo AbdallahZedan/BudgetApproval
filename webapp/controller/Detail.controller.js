@@ -122,6 +122,7 @@ sap.ui.define([
 					that.workItemModel.setData(data);
 					that.setConfigOfLaneAndNode();
 					that.retriveExtAttachment();
+					that.retriveDnoteReqests();
 					that._onBindingChange();
 				},
 				error: function(error) {
@@ -189,7 +190,7 @@ sap.ui.define([
 						return oValue.StepNo === '1';
 					});
 
-					// push nodes of level one as child of inititor node 
+					// push nodes of level one as child of inititor node&nbsp;
 					children.forEach(function(child) {
 						nodes[0].children.push(child.UserName + child.WorkItem);
 					});
@@ -243,7 +244,7 @@ sap.ui.define([
 						});
 
 					});
-					
+
 					that.workItemModel.setProperty("/flowSummary", flowSummaryArr);
 					that.workItemModel.setProperty("/lanes", lanes);
 					that.workItemModel.setProperty("/nodes", nodes);
@@ -303,6 +304,31 @@ sap.ui.define([
 					MessageToast.show(that.getTextFromResourceBundle("failDisplayExtAttach"));
 				}
 
+			});
+
+		},
+
+		retriveDnoteReqests: function() {
+			var lineId = this.workItemModel.getProperty("/LineId"),
+				DNotePath = "/BdgExtensionSet(LineId='" + lineId + "',BdgId='0000000000')/DNoteOfExtSet",
+				oModel = this.getOwnerComponent().getModel(),
+				that = this;
+
+			this.getModel("detailView").setProperty("/busy", true);
+			oModel.read(DNotePath, {
+				method: "GET",
+
+				success: function(dnoteReq) {
+					that.getModel("detailView").setProperty("/busy", false);
+					dnoteReq.results.forEach(function(dnote){
+						dnote.reportUrl = that.getNavigationUrl(dnote.ReqId);
+					});
+					that.workItemModel.setProperty("/DNoteRequests", dnoteReq.results);
+				},
+				error: function(error) {
+					that.getModel("detailView").setProperty("/busy", false);
+					MessageToast.show(that.getTextFromResourceBundle("failDisplayDNoteReq"));
+				}
 			});
 
 		},
@@ -510,7 +536,7 @@ sap.ui.define([
 				};
 
 			that.getView().setBusy(true);
-		
+
 			oModel.create(confirmPath, createObj, {
 
 				success: function(data) {
@@ -525,13 +551,13 @@ sap.ui.define([
 					that.getOwnerComponent().oListSelector._oList.setModel(inboxModel, "inboxModel");
 					that.getRouter().getRoute("object").attachPatternMatched(that._onObjectMatched, that);
 					that.retiveWorkItem();
-				
-			    	// oRouter.navTo("object", {
-			    	//     workItem: that.sWorkItem, 
-			    	//     username: that.sUserName,
-			    	//     index: that.slectedIndex
-			    	// });
-				
+
+					// oRouter.navTo("object", {
+					//     workItem: that.sWorkItem,&nbsp;
+					//     username: that.sUserName,
+					//     index: that.slectedIndex
+					// });
+
 					MessageBox.success(that.getTextFromResourceBundle("actionSucc", decision));
 					that._commentFragment.destroy();
 				},
